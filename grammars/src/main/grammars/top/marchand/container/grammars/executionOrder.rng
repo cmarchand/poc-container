@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar 
+  xmlns="http://relaxng.org/ns/structure/1.0"
+  xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="executionOrder">
+      <element name="component">
+        <ref name="TComponent"/>
+      </element>
+      <optional>
+        <element name="environnement">
+          <ref name="TComponent"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="business">
+          <ref name="TComponent"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="parameters">
+          <oneOrMore>
+            <element name="parameter">
+              <ref name="TParameter"/>
+            </element>
+          </oneOrMore>
+        </element>
+      </optional>
+    </element>
+  </start>
+  <define name="TComponent">
+    <element name="groupId"><text/></element>
+    <element name="artifactId"><text/></element>
+    <element name="version"><text/></element>
+  </define>
+  <define name="TParameter">
+    <attribute name="name"><text/></attribute>
+    <choice>
+      <attribute name="value"><text/></attribute>
+      <text/>
+    </choice>
+  </define>
+</grammar>
