@@ -20,8 +20,6 @@ import javax.naming.NamingException;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import net.sf.saxon.Configuration;
-import net.sf.saxon.s9api.Processor;
 
 /**
  * Un sender qui envoi des groupes de 5 messages
@@ -54,7 +52,7 @@ public class Sender {
     private final QueueConnection qConnection;
     private final QueueSession session;
     private Queue queue;
-    private final Processor proc;
+
     public Sender(final String jmsUrl, final boolean valid) throws IOException, NamingException, JMSException {
         super();
         Properties jmsProperties = new Properties();
@@ -64,7 +62,6 @@ public class Sender {
         QueueConnectionFactory qFactory = (QueueConnectionFactory)ctx.lookup("connectionFactory");
         qConnection = qFactory.createQueueConnection();
         session= qConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-        proc = new Processor(Configuration.newConfiguration());
     }
     protected void start() throws JMSException, IOException {
         queue = session.createQueue("container");
