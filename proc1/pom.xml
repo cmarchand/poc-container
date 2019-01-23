@@ -23,7 +23,7 @@
         <configuration>
           <archive>
             <manifest>
-              <addClasspath>true</addClasspath>
+              <!--<addClasspath>true</addClasspath>-->
               <mainClass>top.marchand.container.proc1.Proc1Starter</mainClass>
             </manifest>
           </archive>
@@ -31,4 +31,17 @@
       </plugin>
     </plugins>
   </build>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.11.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>2.11.1</version>
+    </dependency>
+  </dependencies>
 </project>

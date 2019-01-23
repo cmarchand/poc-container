@@ -42,5 +42,8 @@ public class TinyArtifact {
         return version;
     }
     
-    
+    @Override
+    public String toString() {
+        return groupId+":"+artifactId+":"+version;
+    }
 }

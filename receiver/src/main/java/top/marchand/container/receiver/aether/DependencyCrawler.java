@@ -51,24 +51,38 @@ public class DependencyCrawler extends AbstractAetherUtils {
         CollectResult collectResult = system.collectDependencies(session, collectRequest);
         DependencyNode node = collectResult.getRoot();
         node.accept(
-                new TreeDependencyVisitor(
-                        new FilteringDependencyVisitor(
-                                new DependencyVisitor() {
-			String indent = "";
-			@Override
-			public boolean visitEnter(DependencyNode dependencyNode) {
-//				System.out.println(indent + dependencyNode.getArtifact());
-				indent += "    ";
-                                ret.add(dependencyNode.getArtifact());
-				return true;
-			}
-
-			@Override
-			public boolean visitLeave(DependencyNode dependencyNode) {
-				indent = indent.substring(0, indent.length() - 4);
-				return true;
-			}
-		}, classpathFlter)));
+//            new TreeDependencyVisitor(
+//                new FilteringDependencyVisitor(
+                    new DependencyVisitor() {
+                String indent = "";
+                @Override
+                public boolean visitEnter(DependencyNode dependencyNode) {
+                    boolean isJar = "jar".equals(dependencyNode.getArtifact().getExtension());
+//                    System.out.println("Scope: "+dependencyNode.getDependency().getScope());
+                    String scope = dependencyNode.getDependency().getScope();
+                    if(isJar && !"provided".equals(scope) && !"system".equals(scope) && !"test".equals(scope)) {
+                        System.out.println(indent + dependencyNode.getArtifact()+" "+dependencyNode.getDependency().getScope());
+                        indent += "    ";
+//                                System.out.println(indent+"classifier: "+dependencyNode.getArtifact().getClassifier());
+//                                System.out.println(indent+"extension:  "+dependencyNode.getArtifact().getExtension());
+                        ret.add(dependencyNode.getArtifact());
+                    }
+                    return true;
+                }
+                @Override
+                public boolean visitLeave(DependencyNode dependencyNode) {
+                    String scope = dependencyNode.getDependency().getScope();
+                    boolean isJar = "jar".equals(dependencyNode.getArtifact().getExtension());
+                    if(isJar && !"provided".equals(scope) && !"system".equals(scope) && !"test".equals(scope)) {
+                        indent = indent.substring(0, indent.length() - 4);
+                    }
+                    return true;
+                }
+            }
+//                , classpathFlter
+//        )
+       //         )
+        );
         return ret;
     }
     

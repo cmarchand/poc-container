@@ -115,6 +115,7 @@ public class Receiver implements MessageListener {
     @Override
     public void onMessage(Message msg) {
         try {
+            System.out.println();
             System.out.println("Message received: "+msg.getJMSMessageID());
             msg.acknowledge();
             BytesMessage bm = (BytesMessage)msg;
@@ -133,9 +134,11 @@ public class Receiver implements MessageListener {
     }
     
     protected void process(ExecutionOrderModel order) {
+        System.out.println("Processing "+order.getComponent());
         try {
             String localRepositoryPath = "/Users/cmarchand/.m2/repository";
             DependencyCrawler crawler = new DependencyCrawler(localRepositoryPath);
+            System.out.println("crawler instanciated");
             Artifact processRootArtifact = new DefaultArtifact(
                     order.getComponent().getGroupId(), 
                     order.getComponent().getArtifactId(), 
@@ -143,9 +146,11 @@ public class Receiver implements MessageListener {
                     order.getComponent().getVersion());
             // TODO : add environnement and business to classpath
             List<Artifact> processArtifacts = crawler.getRecursiveDependencies(processRootArtifact);
+            System.out.println("dependencies: "+processArtifacts);
             JarProvider jarProvider = new JarProvider(localRepositoryPath);
             List<Artifact> resolvedProcessArtifacts = new ArrayList<>(processArtifacts.size());
             for(Artifact artifact: processArtifacts) {
+                System.out.println("resolving "+artifact+"   "+artifact.getFile());
                 resolvedProcessArtifacts.add(jarProvider.getJar(artifact));
             }
             URL[] urls = new URL[resolvedProcessArtifacts.size()];
@@ -157,6 +162,7 @@ public class Receiver implements MessageListener {
             // maybe, we need to add some parts, especially for cp:/ protocol implementation
             ClassLoader processClassLoader = new URLClassLoader(urls, this.getClass().getClassLoader().getParent());
             String startingClassName = getStartingClassName(resolvedProcessArtifacts.get(0).getFile());
+            System.out.println("Class to start: "+startingClassName);
             startProcess(processClassLoader, startingClassName, order);
         } catch(IOException | DependencyResolutionException | DependencyCollectionException | ArtifactResolutionException ex) {
             ex.printStackTrace(System.err);
@@ -164,25 +170,14 @@ public class Receiver implements MessageListener {
     }
     
     protected void startProcess(ClassLoader cl, String className, ExecutionOrderModel order) {
-        ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(cl);
-            Class clazz = cl.loadClass(className);
-            String[] parameters = new String[order.getParameters().size()];
-            int i=0;
-            for(ParameterModel pm: order.getParameters().values()) {
-                String s = pm.getName()+"="+pm.getValue();
-                parameters[i++] = s;
-            }
-            Method m = clazz.getMethod("main", parameters.getClass());
-            Object[] ps = new Object[] {parameters};
-            m.invoke(null, ps);
-        } catch(ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
-            System.err.println("while running "+className);
-            ex.printStackTrace(System.err);
-        } finally {
-            Thread.currentThread().setContextClassLoader(originalClassLoader);
+        String[] parameters = new String[order.getParameters().size()];
+        int i=0;
+        for(ParameterModel pm: order.getParameters().values()) {
+            String s = pm.getName()+"="+pm.getValue();
+            parameters[i++] = s;
         }
+        RunnerTask task = new RunnerTask(cl, className, parameters);
+        task.run();
     }
     
     private String getStartingClassName(File jarFile) throws IllegalArgumentException {

@@ -27,8 +27,8 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public class Sender {
     private static final String[] TARGETS = {
-        "top.marchand.container:proc1:1.00.00-SNAPSHOT",
-        "top.marchand.container:proc2:1.00.00-SNAPSHOT"
+        "top.marchand.container:proc1:1.00.00-SNAPSHOT"/*,
+        "top.marchand.container:proc2:1.00.00-SNAPSHOT"*/
     };
     /**
      * Point d'entrée

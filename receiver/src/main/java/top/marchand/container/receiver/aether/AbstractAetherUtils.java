@@ -49,6 +49,7 @@ public class AbstractAetherUtils {
                 new ExclusionDependencySelector()
                 );
         session.setDependencySelector(depFilter);
+        session.setOffline(true);
         return session;
     }
     protected RepositorySystem newRepositorySystem() {
